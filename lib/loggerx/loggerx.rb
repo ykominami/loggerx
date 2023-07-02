@@ -20,6 +20,36 @@ module Loggerx
         list[0, latest_index].map(&:unlink) if latest_index.positive?
       end
 
+      def init_by_hash(hash)
+        prefix = hash["prefix"]
+
+        log_dir_pn = Pathname.new( hash["log_dir"] )
+        #log_dir_pn = Pathname.new( obj[:log_dir] )
+        # log_dir_pn = Pathname.new( obj[0] )
+
+        stdout_flag_str = hash["stdout_flag"]
+        case stdout_flag_str
+        when "true"
+            stdout_flag = true
+        else
+            stdout_flag = false
+        end
+
+        fname_str = hash["fname"]
+        case fname_str
+        when "default"
+            fname = fname_str.to_sym
+        when "false"
+            fname = false
+        else
+            fname = fname_str
+        end
+
+        level = hash["level"].to_sym
+
+        init(prefix, fname, log_dir_pn, stdout_flag, level)
+      end
+
       def init(prefix, fname, log_dir, stdout_flag, level = :info)
         return if @log_file
 
@@ -42,7 +72,7 @@ module Loggerx
 
         fname = nil if fname == false
         fname = prefix + LOG_FILENAME_BASE if fname == :default
-        @log_file = setup_logger_file(@log_file, log_dir, fname) if fname
+        @log_file = setup_logger_file(log_dir, fname) if fname
 
         obj = proc do |_, _, _, msg| "#{msg}\n" end
         register_log_format(obj)
@@ -59,16 +89,15 @@ module Loggerx
         log_stdout
       end
 
-      def setup_logger_file(log_file, log_dir, fname)
+      def setup_logger_file(log_dir, fname)
         filepath = Pathname.new(log_dir).join(fname)
-        if log_file.nil?
-          begin
-            log_file = Logger.new(filepath)
-          rescue Errno::EACCES
-            @error_count += 1
-          rescue
-            @error_count += 1
-          end
+        log_file = nil
+        begin
+          log_file = Logger.new(filepath)
+        rescue Errno::EACCES
+          @error_count += 1
+        rescue
+          @error_count += 1
         end
         log_file
       end
