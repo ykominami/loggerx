@@ -13,6 +13,8 @@ module Loggerx
     @stringio = StringIO.new(+"", "w+")
     #@limit_of_num_of_files ||= 3
 
+    attr_reader :error_count
+
     def initialize(prefix, fname, log_dir, stdout_flag, level = :info)
       return if @log_file
 
@@ -42,6 +44,10 @@ module Loggerx
       register_log_level(level_hs[level])
     end
 
+    def get_logger_stdout
+      @log_stdout
+    end
+
     def ensure_quantum_log_files(log_dir_pn, limit_of_num_of_files, prefix)
       list = log_dir_pn.children.select { |item| item.basename.to_s.match?("^#{prefix}") }.sort_by(&:mtime)
       latest_index = list.size - limit_of_num_of_files
@@ -51,7 +57,8 @@ module Loggerx
     def setup_logger_stdout(log_stdout)
       return log_stdout unless log_stdout.nil?
       begin
-        log_stdout = Logger.new($stdout)
+        # log_stdout = Logger.new($stdout)
+        log_stdout = Logger.new(STDOUT)
       rescue
         @error_count += 1
       end
@@ -160,37 +167,41 @@ module Loggerx
 
       def hash_to_args(hash)
         prefix = hash["prefix"]
-  
-        log_dir_pn = Pathname.new( hash["log_dir"] )
+
+        log_dir_pn = Pathname.new(hash["log_dir"])
         #log_dir_pn = Pathname.new( obj[:log_dir] )
         # log_dir_pn = Pathname.new( obj[0] )
-  
+
         stdout_flag_str = hash["stdout_flag"]
-        case stdout_flag_str
-        when "true"
+        if stdout_flag_str.instance_of?(String)
+          case stdout_flag_str
+          when "true"
             stdout_flag = true
-        else
+          else
             stdout_flag = false
+          end
+        else
+          stdout_flag = stdout_flag_str
         end
-  
+
         fname_str = hash["fname"]
         case fname_str
         when "default"
-            fname = fname_str.to_sym
+          fname = fname_str.to_sym
         when "false"
-            fname = false
+          fname = false
         else
-            fname = fname_str
+          fname = fname_str
         end
-  
+
         level = hash["level"].to_sym
-  
+
         [prefix, fname, log_dir_pn, stdout_flag, level]
       end
-  
+
       def create_by_hash(hash)
         prefix, fname, log_dir_pn, stdout_flag, level = hash_to_args(hash)
-        self.class.new(prefix, fname, log_dir_pn, stdout_flag, level)
+        new(prefix, fname, log_dir_pn, stdout_flag, level)
       end
 
       def init_by_hash(hash)
@@ -200,7 +211,7 @@ module Loggerx
 
       def init(prefix, fname, log_dir, stdout_flag, level = :info)
         return if @log_file
-        @log_file = self.new(prefix, fname, log_dir, stdout_flag, level)
+        @log_file = new(prefix, fname, log_dir, stdout_flag, level)
       end
 
       def setup_logger_stdout(log_stdout)
