@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe Loggerx / Loggerxcm0 do
+RSpec.describe Loggerx::Loggerxcm0 do
   # Add more tests for other methods here
   describe "init" do
     it "initializes with correct parameters" do
