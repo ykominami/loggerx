@@ -25,7 +25,7 @@ module Loggerx
         warn: Logger::WARN,
         error: Logger::ERROR,
         fatal: Logger::FATAL,
-        unknown: Logger::UNKNOWN
+        unknown: Logger::UNKNOWN,
       }
       @log_dir_pn = Pathname.new(log_dir)
 
@@ -173,25 +173,25 @@ module Loggerx
 
         stdout_flag_str = hash["stdout_flag"]
         stdout_flag = if stdout_flag_str.instance_of?(String)
-                        case stdout_flag_str
-                        when "true"
-                          true
-                        else
-                          false
-                        end
-                      else
-                        stdout_flag_str
-                      end
+            case stdout_flag_str
+            when "true"
+              true
+            else
+              false
+            end
+          else
+            stdout_flag_str
+          end
 
         fname_str = hash["fname"]
         fname = case fname_str
-                when "default"
-                  fname_str.to_sym
-                when "false"
-                  false
-                else
-                  fname_str
-                end
+          when "default"
+            fname_str.to_sym
+          when "false"
+            false
+          else
+            fname_str
+          end
 
         level = hash["level"].to_sym
 
