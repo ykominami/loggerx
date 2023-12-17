@@ -5,5 +5,6 @@ require_relative "loggerx/loggerx"
 
 module Loggerx
   class Error < StandardError; end
+
   # Your code goes here...
 end

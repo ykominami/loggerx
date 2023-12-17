@@ -6,26 +6,26 @@ module Loggerx
     require "fileutils"
     require "stringio"
 
-    LOG_FILENAME_BASE = "#{Time.now.strftime("%Y%m%d-%H%M%S")}.log"
+    LOG_FILENAME_BASE = "#{Time.now.strftime("%Y%m%d-%H%M%S")}.log".freeze
     @log_file = nil
     @log_stdout = nil
     @stdout_backup = $stdout
     @stringio = StringIO.new(+"", "w+")
-    #@limit_of_num_of_files ||= 3
 
     attr_reader :error_count
 
     def initialize(prefix, fname, log_dir, stdout_flag, level = :info)
       return if @log_file
 
-      @error_count = 0
+      @error_access_count = 0
+      @error_stderror_count = 0
       level_hs = {
         debug: Logger::DEBUG,
         info: Logger::INFO,
         warn: Logger::WARN,
         error: Logger::ERROR,
         fatal: Logger::FATAL,
-        unknown: Logger::UNKNOWN,
+        unknown: Logger::UNKNOWN
       }
       @log_dir_pn = Pathname.new(log_dir)
 
@@ -39,12 +39,14 @@ module Loggerx
       fname = prefix + LOG_FILENAME_BASE if fname == :default
       @log_file = setup_logger_file(log_dir, fname) if fname
 
-      obj = proc do |_, _, _, msg| "#{msg}\n" end
+      obj = proc do |_, _, _, msg|
+        "#{msg}\n"
+      end
       register_log_format(obj)
       register_log_level(level_hs[level])
     end
 
-    def get_logger_stdout
+    def logger_stdout
       @log_stdout
     end
 
@@ -56,11 +58,12 @@ module Loggerx
 
     def setup_logger_stdout(log_stdout)
       return log_stdout unless log_stdout.nil?
+
       begin
         # log_stdout = Logger.new($stdout)
-        log_stdout = Logger.new(STDOUT)
-      rescue
-        @error_count += 1
+        log_stdout = Logger.new($stdout)
+      rescue StandardError
+        @error_stderror_count += 1
       end
       log_stdout
     end
@@ -71,9 +74,9 @@ module Loggerx
       begin
         log_file = Logger.new(filepath)
       rescue Errno::EACCES
-        @error_count += 1
-      rescue
-        @error_count += 1
+        @error_access_count += 1
+      rescue StandardError
+        @error_stderror_count += 1
       end
       log_file
     end
@@ -86,7 +89,6 @@ module Loggerx
     def register_log_level(level)
       @log_file&.level = level
       @log_stdout&.level = level
-      #
       # Log4r互換インターフェイス
       # DEBUG < INFO < WARN < ERROR < FATAL < UNKNOWN
     end
@@ -110,7 +112,7 @@ module Loggerx
       puts(value)
       str = error_sub(value)
       # puts(str) unless @log_stdout
-      puts(str) #unless @log_stdout
+      puts(str) # unless @log_stdout
       true
     end
 
@@ -167,32 +169,29 @@ module Loggerx
 
       def hash_to_args(hash)
         prefix = hash["prefix"]
-
         log_dir_pn = Pathname.new(hash["log_dir"])
-        #log_dir_pn = Pathname.new( obj[:log_dir] )
-        # log_dir_pn = Pathname.new( obj[0] )
 
         stdout_flag_str = hash["stdout_flag"]
-        if stdout_flag_str.instance_of?(String)
-          case stdout_flag_str
-          when "true"
-            stdout_flag = true
-          else
-            stdout_flag = false
-          end
-        else
-          stdout_flag = stdout_flag_str
-        end
+        stdout_flag = if stdout_flag_str.instance_of?(String)
+                        case stdout_flag_str
+                        when "true"
+                          true
+                        else
+                          false
+                        end
+                      else
+                        stdout_flag_str
+                      end
 
         fname_str = hash["fname"]
-        case fname_str
-        when "default"
-          fname = fname_str.to_sym
-        when "false"
-          fname = false
-        else
-          fname = fname_str
-        end
+        fname = case fname_str
+                when "default"
+                  fname_str.to_sym
+                when "false"
+                  false
+                else
+                  fname_str
+                end
 
         level = hash["level"].to_sym
 
@@ -211,6 +210,7 @@ module Loggerx
 
       def init(prefix, fname, log_dir, stdout_flag, level = :info)
         return if @log_file
+
         @log_file = new(prefix, fname, log_dir, stdout_flag, level)
       end
 
