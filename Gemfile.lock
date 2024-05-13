@@ -25,8 +25,8 @@ GEM
       stringio
     racc (1.7.3)
     rainbow (3.1.1)
-    rake (13.1.0)
-    rdoc (6.6.3.1)
+    rake (13.2.1)
+    rdoc (6.6.2)
       psych (>= 4.0.0)
     regexp_parser (2.9.0)
     reline (0.5.0)
@@ -79,7 +79,7 @@ PLATFORMS
 DEPENDENCIES
   debug
   loggerx!
-  rake (~> 13.0)
+  rake (~> 13.2)
   rspec (~> 3.13)
   rubocop
   rubocop-rake
