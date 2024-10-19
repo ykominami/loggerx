@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    loggerx (0.2.0)
+    loggerx (0.3.0)
 
 GEM
   remote: https://rubygems.org/

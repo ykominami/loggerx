@@ -42,8 +42,20 @@ module Loggerx
       obj = proc do |_, _, _, msg|
         "#{msg}\n"
       end
-      register_log_format(obj)
-      register_log_level(level_hs[level])
+      # register_log_format(obj)
+      formatter = obj
+      # register_log_level(level_hs[level])
+      level = level_hs[level]
+    end
+
+    def formatter
+      @log_file&.formatter
+      # @log_stdout&.formatter
+    end
+
+    def formatter=(obj)
+      @log_file&.formatter = obj
+      @log_stdout&.formatter = obj
     end
 
     def logger_stdout
@@ -60,30 +72,38 @@ module Loggerx
       return log_stdout unless log_stdout.nil?
 
       begin
-        # log_stdout = Logger.new($stdout)
-        log_stdout = Logger.new($stdout)
+        log ||= ActiveSupport::TaggedLogging.new($stdout)
       rescue StandardError
         @error_stderror_count += 1
       end
-      log_stdout
+      log
     end
 
     def setup_logger_file(log_dir, fname)
       filepath = Pathname.new(log_dir).join(fname)
       log_file = nil
       begin
-        log_file = Logger.new(filepath)
+        log ||= ActiveSupport::TaggedLogging.new(filepath)
       rescue Errno::EACCES
         @error_access_count += 1
       rescue StandardError
         @error_stderror_count += 1
       end
-      log_file
+      log
     end
 
-    def register_log_format(obj)
-      @log_file&.formatter = obj
-      @log_stdout&.formatter = obj
+    def level
+      @log_file&.level
+      # @log_stdout&.level
+      # Log4r互換インターフェイス
+      # DEBUG < INFO < WARN < ERROR < FATAL < UNKNOWN
+    end
+
+    def level=(value)
+      @log_file&.level = value
+      @log_stdout&.level = value
+      # Log4r互換インターフェイス
+      # DEBUG < INFO < WARN < ERROR < FATAL < UNKNOWN
     end
 
     def register_log_level(level)
