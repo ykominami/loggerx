@@ -2,15 +2,15 @@
 
 module Loggerx
   class Loggerx
-    require "logger"
-    require "fileutils"
-    require "stringio"
+    require 'logger'
+    require 'fileutils'
+    require 'stringio'
 
     LOG_FILENAME_BASE = "#{Time.now.strftime("%Y%m%d-%H%M%S")}.log".freeze
     @log_file = nil
     @log_stdout = nil
     @stdout_backup = $stdout
-    @stringio = StringIO.new(+"", "w+")
+    @stringio = StringIO.new(+'', 'w+')
 
     attr_reader :error_count
 
@@ -38,14 +38,9 @@ module Loggerx
       fname = nil if fname == false
       fname = prefix + LOG_FILENAME_BASE if fname == :default
       @log_file = setup_logger_file(log_dir, fname) if fname
-
-      obj = proc do |_, _, _, msg|
-        "#{msg}\n"
-      end
       # register_log_format(obj)
-      formatter = obj
       # register_log_level(level_hs[level])
-      level = level_hs[level]
+      level_hs[level]
     end
 
     def formatter
@@ -81,7 +76,6 @@ module Loggerx
 
     def setup_logger_file(log_dir, fname)
       filepath = Pathname.new(log_dir).join(fname)
-      log_file = nil
       begin
         log ||= ActiveSupport::TaggedLogging.new(filepath)
       rescue Errno::EACCES
@@ -116,7 +110,7 @@ module Loggerx
     def to_string(value)
       if value.instance_of?(Array)
         @stdout_backup ||= $stdout
-        @stringio ||= StringIO.new(+"", "w+")
+        @stringio ||= StringIO.new(+'', 'w+')
         $stdout = @stringio
         $stdout = @stdout_backup
         @stringio.rewind
@@ -150,7 +144,6 @@ module Loggerx
 
     def debug(value)
       str = to_string(value)
-      # p str
       @log_file&.debug(str)
       @log_stdout&.debug(str)
       true
@@ -188,39 +181,39 @@ module Loggerx
       end
 
       def hash_to_args(hash)
-        prefix = hash["prefix"]
-        log_dir_pn = Pathname.new(hash["log_dir"])
+        prefix = hash['prefix']
+        log_dir_pn = Pathname.new(hash['log_dir'])
 
-        stdout_flag_str = hash["stdout_flag"]
+        stdout_flag_str = hash['stdout_flag']
         stdout_flag = if stdout_flag_str.instance_of?(String)
-            case stdout_flag_str
-            when "true"
-              true
-            else
-              false
-            end
-          else
-            stdout_flag_str
-          end
+                        case stdout_flag_str
+                        when 'true'
+                          true
+                        else
+                          false
+                        end
+                      else
+                        stdout_flag_str
+                      end
 
-        fname_str = hash["fname"]
+        fname_str = hash['fname']
         fname = case fname_str
-          when "default"
-            fname_str.to_sym
-          when "false"
-            false
-          else
-            fname_str
-          end
+                when 'default'
+                  fname_str.to_sym
+                when 'false'
+                  false
+                else
+                  fname_str
+                end
 
-        level = hash["level"].to_sym
+        level = hash['level'].to_sym
 
         [prefix, fname, log_dir_pn, stdout_flag, level]
       end
 
       def create_by_hash(hash)
         prefix, fname, log_dir_pn, stdout_flag, level = hash_to_args(hash)
-        new(prefix, fname, log_dir_pn, stdout_flag, level)
+        Loggerx.new(prefix, fname, log_dir_pn, stdout_flag, level)
       end
 
       def init_by_hash(hash)

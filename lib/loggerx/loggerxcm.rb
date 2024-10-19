@@ -1,18 +1,18 @@
 # frozen_string_literal: true
 
-require "pathname"
+require 'pathname'
 
 module Loggerx
   class Loggerxcm0
-    require "logger"
-    require "fileutils"
-    require "stringio"
+    require 'logger'
+    require 'fileutils'
+    require 'stringio'
 
     LOG_FILENAME_BASE = "#{Time.now.strftime("%Y%m%d-%H%M%S")}.log".freeze
     @log_file = nil
     @log_stdout = nil
     @stdout_backup = $stdout
-    @stringio = StringIO.new(+"", "w+")
+    @stringio = StringIO.new(+'', 'w+')
     # @limit_of_num_of_files ||= 3
 
     class << self
@@ -73,8 +73,8 @@ module Loggerx
         if log_file.nil?
           begin
             log_file = Logger.new(filepath)
-          rescue Errno::EACCES
-            @error_count += 1
+          # rescue Errno::EACCES
+          #   @error_count += 1
           rescue StandardError
             @error_count += 1
           end
@@ -98,7 +98,7 @@ module Loggerx
       def to_string(value)
         if value.instance_of?(Array)
           @stdout_backup ||= $stdout
-          @stringio ||= StringIO.new(+"", "w+")
+          @stringio ||= StringIO.new(+'', 'w+')
           $stdout = @stringio
           $stdout = @stdout_backup
           @stringio.rewind

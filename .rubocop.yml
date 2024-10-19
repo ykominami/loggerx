@@ -8,29 +8,80 @@ AllCops:
   NewCops: enable
   TargetRubyVersion: 3.1
 
-Style/StringLiterals:
-  Enabled: true
-  EnforcedStyle: double_quotes
+  DisplayCopNames: true
+  StyleGuideBaseURL: https://github.com/fortissimo1997/ruby-style-guide/blob/japanese/README.ja.md
+  # 結果のsuggest部分を非表示にする
+  SuggestExtensions: false
+  # rubocopの対象外ファイル
+  Exclude:
+    - "Gemfile"
+    - "bin/**/*"
+    - "db/**/*"
+    - "log/**/*"
+    - "tmp/**/*"
+    - "vendor/**/*"
+    - "lib/tasks/auto_annotate_models.rake"
+    - "config/environments/*"
+    - "config/puma.rb"
+    - "root/**/*"
+    - "test_data/**/*"
+    - "test_data_y/**/*"
+    - "test_other/**/*"
+    - "test_output/**/*"
+    - "tmp/**/*"
+    - "pkg/**/*"
+    - "docs/**/*"
 
-Style/StringLiteralsInInterpolation:
-  Enabled: true
-  EnforcedStyle: double_quotes
 
-Layout/LineLength:
-  Max: 120
+Layout:
+  # メソッド名をcamelCase に設定します
+  MethodName:
+    #  EnforcedStyle: camelCase
+    EnforcedStyle: snake_case
+  # 一行に 120 文字まで書いても OK とする
+  LineLength:
+    Max: 120
 
+Style:
+  StringLiterals:
+    Enabled: true
+    EnforcedStyle: double_quotes
+
+  StringLiteralsInInterpolation:
+    Enabled: true
+    EnforcedStyle: double_quotes
 #追加
-Style/FrozenStringLiteralComment:
-  Enabled: false
+  rozenStringLiteralComment:
+    Enabled: false
+  ClassAndModuleChildren:
+    Enabled: false
+  GuardClause:
+    Enabled: false
+  IfUnlessModifier: 
+    Enabled: false
+  # 日本語のコメントを OK とする
+  AsciiComments:
+    Enabled: false
+  BlockComments:
+    Enabled: false
 
-Style/Documentation:
-  Enabled: false
-Style/ClassAndModuleChildren:
-  Enabled: false
-Style/GuardClause:
-  Enabled: false
-Style/IfUnlessModifier: 
-  Enabled: false
+  # class documentation commentのアラートを出さない
+  Documentation:
+    Enabled: false
+  IfWithBooleanLiteralBranches:
+    Enabled: false
 
-Metrics/ClassLength:
-  Enabled: false
+Naming:
+  RescuedExceptionsVariableName:
+    PreferredName: exc
+
+Lint:
+  DuplicateRegexpCharacterClassElement:
+    Enabled: false
+
+
+Metrics:
+  ClassLength:
+    # Enabled: false
+    Max: 440 # クラスの最大行数をここで設定
+
