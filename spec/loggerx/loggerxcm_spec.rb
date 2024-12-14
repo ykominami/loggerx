@@ -9,7 +9,7 @@ RSpec.describe Loggerx::Loggerxcm do
       log_dir = '/tmp'
       stdout_flag = true
       level = :info
-      described_class.init(prefix, fname, log_dir, stdout_flag, level)
+      described_class.init(prefix, fname, log_dir, stdout_flag, level: :info)
       expect(described_class).to be_valid
     end
   end

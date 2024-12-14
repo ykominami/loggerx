@@ -42,7 +42,7 @@ module Loggerx
         list[0, latest_index].map(&:unlink) if latest_index.positive?
       end
 
-      def init(prefix, fname, log_dir, stdout_flag, level = :info)
+      def init(prefix, fname, log_dir, stdout_flag, level: :info)
         return if @log_file
 
         @error_count = 0
@@ -55,6 +55,11 @@ module Loggerx
           unknown: Logger::UNKNOWN
         }
         @log_level = level_hs[level]
+        if @log_level.nil?
+          p "level=#{level} level.class=#{level.class}"
+          return unless @log_level
+        end
+        
         @log_dir_pn = Pathname.new(log_dir)
 
         @limit_of_num_of_files ||= 5
@@ -116,8 +121,8 @@ module Loggerx
       end
 
       def register_log_level(log_level)
-        # @log_file&.level = log_level
-        # @log_stdout&.level = log_level
+        @log_file&.level = log_level
+        @log_stdout&.level = log_level
         #
         # Log4r互換インターフェイス
         # DEBUG < INFO < WARN < ERROR < FATAL < UNKNOWN

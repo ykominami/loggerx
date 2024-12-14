@@ -94,8 +94,8 @@ module Loggerx
     end
 
     def register_log_level(log_level)
-      @log_file.level = log_level
-      @log_stdout.level = log_level
+      @log_file&.level = log_level
+      @log_stdout&.level = log_level
       #
       # Log4r互換インターフェイス
       # DEBUG < INFO < WARN < ERROR < FATAL < UNKNOWN
