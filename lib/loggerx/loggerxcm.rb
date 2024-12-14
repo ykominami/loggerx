@@ -23,15 +23,19 @@ module Loggerx
     require 'fileutils'
     require 'stringio'
 
-    LOG_FILENAME_BASE = "#{Time.now.strftime('%Y%m%d-%H%M%S')}.log".freeze
+    # LOG_FILENAME_BASE = "#{Time.now.strftime('%Y%m%d-%H%M%S')}.log".freeze
     @log_file = nil
     @log_stdout = nil
     @stdout_backup = $stdout
-    @stringio = StringIO.new(+"", 'w+')
+    @stringio = StringIO.new(+'', 'w+')
 
     @valid = false
 
     class << self
+      def valid?
+        @valid
+      end
+
       def ensure_quantum_log_files(log_dir_pn, limit_of_num_of_files, prefix)
         list = log_dir_pn.children.select { |item| item.basename.to_s.match?("^#{prefix}") }.sort_by(&:mtime)
         latest_index = list.size - limit_of_num_of_files
@@ -50,6 +54,7 @@ module Loggerx
           fatal: Logger::FATAL,
           unknown: Logger::UNKNOWN
         }
+        @log_level = level_hs[level]
         @log_dir_pn = Pathname.new(log_dir)
 
         @limit_of_num_of_files ||= 5
@@ -66,15 +71,15 @@ module Loggerx
           "#{msg}\n"
         end
         register_log_format(obj)
-        register_log_level(level_hs[level])
+        register_log_level(@log_level)
 
         @valid = true
 
-        Loggerxcm.fatal("fatal")
-        Loggerxcm.debug("debug")
-        Loggerxcm.info("info")
-        Loggerxcm.warn("warn")
-        Loggerxcm.error("error")
+        Loggerxcm.fatal('fatal')
+        Loggerxcm.debug('debug')
+        Loggerxcm.info('info')
+        Loggerxcm.warn('warn')
+        Loggerxcm.error('error')
         #        Loggerxcm.unknown("unknown")
       end
 
@@ -110,10 +115,10 @@ module Loggerx
         @log_stdout&.formatter = obj
       end
 
-      def register_log_level(level)
-        puts "============ Loggerxcm.register_log_level level=#{level} ==========="
-        @log_file&.level = level
-        @log_stdout&.level = level
+      def register_log_level(log_level)
+        puts "============ #{self}.register_log_level log_level=#{log_level} log_level.class=#{log_level.class} ==========="
+        # @log_file&.level = log_level
+        # @log_stdout&.level = log_level
         #
         # Log4r互換インターフェイス
         # DEBUG < INFO < WARN < ERROR < FATAL < UNKNOWN
@@ -122,7 +127,7 @@ module Loggerx
       def to_string(value)
         if value.instance_of?(Array)
           @stdout_backup ||= $stdout
-          @stringio ||= StringIO.new(+"", 'w+')
+          @stringio ||= StringIO.new(+'', 'w+')
           $stdout = @stringio
           @stringio.rewind
           str = @stringio.read
