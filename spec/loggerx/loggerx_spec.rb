@@ -11,7 +11,7 @@ RSpec.describe Loggerx do
       log_dir = '/tmp'
       stdout_flag = true
       level = :info
-      loggerx = Loggerx::Loggerx.new(prefix, fname, log_dir, stdout_flag, level)
+      loggerx = Loggerx::Loggerx.new(prefix, fname, log_dir, stdout_flag, level: level)
       expect(loggerx).to be_a(Loggerx::Loggerx)
     end
   end
