@@ -116,7 +116,6 @@ module Loggerx
       end
 
       def register_log_level(log_level)
-        {log_level.class} ==========="
         # @log_file&.level = log_level
         # @log_stdout&.level = log_level
         #
