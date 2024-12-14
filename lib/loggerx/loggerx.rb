@@ -194,4 +194,4 @@ module Loggerx
       # @log_stdout&.close
     end
   end
-end
+end 
