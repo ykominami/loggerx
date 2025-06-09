@@ -7,7 +7,7 @@ gemspec
 
 group :development, :test do
   gem "debug"
-  gem "rake", "~> 13.2"
+  gem "rake", "~> 13.3"
   gem "rspec", "~> 3.13"
   gem "rubocop"
   gem "rubocop-rake", require: false
